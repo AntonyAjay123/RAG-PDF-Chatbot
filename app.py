@@ -24,7 +24,10 @@ os.environ["HUGGINGFACE_HUB_CACHE"] = cache_dir
 os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
 os.environ['HF_TOKEN'] = os.getenv('HF_TOKEN')
 os.environ['GROQ_API_KEY'] = os.getenv('GROQ_API_KEY')
-embeddings = HuggingFaceEmbeddings(model = 'all-MiniLM-L6-v2')
+embeddings = HuggingFaceEmbeddings(
+    model="sentence-transformers/all-MiniLM-L6-v2",
+    cache_folder="./hf_cache"
+)
 
 ## setup streamlit
 st.title("Conversational RAG with PDF uploads and chat history")
@@ -52,7 +55,7 @@ if uploaded_files:
         documents.extend(docs)
 
     splits = RecursiveCharacterTextSplitter(chunk_size = 5000,chunk_overlap=200).split_documents(documents)
-    vector_store = Chroma.from_documents(documents=splits,embedding=embeddings)
+    vector_store = Chroma.from_documents(documents=splits,embedding=embeddings,persist_directory="./chroma_db")
     retriever = vector_store.as_retriever()
 
     contextualize_q_system_prompt = (
